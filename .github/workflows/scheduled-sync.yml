@@ -1,0 +1,42 @@
+name: Scheduled Sync Update
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  sync-update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Update sync state
+        run: |
+          mkdir -p .github
+          latest_sha="$(git rev-parse origin/main)"
+          now_utc="$(date -u +"%Y-%m-%dT%H:%M:%SZ")"
+          cat > .github/sync-state.json <<EOF
+          {
+            "latest_main_sha": "${latest_sha}",
+            "updated_at_utc": "${now_utc}"
+          }
+          EOF
+
+      - name: Commit if changed
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          if git diff --quiet; then
+            echo "No changes to commit."
+            exit 0
+          fi
+          git add .github/sync-state.json
+          git commit -m "chore: scheduled sync state update"
+          git push
