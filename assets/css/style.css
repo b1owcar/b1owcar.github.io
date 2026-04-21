@@ -18,6 +18,17 @@
   --transition: 220ms ease;
 }
 
+body[data-theme="light"] {
+  --bg-start: #dbe9ff;
+  --bg-end: #f7fbff;
+  --text-primary: #14213d;
+  --text-secondary: #42526f;
+  --glass-bg: rgba(255, 255, 255, 0.66);
+  --glass-border: rgba(106, 131, 170, 0.28);
+  --shadow-neon: 0 0 20px rgba(55, 242, 255, 0.18), 0 0 24px rgba(187, 102, 255, 0.14);
+  --shadow-soft: 0 12px 26px rgba(57, 78, 109, 0.16);
+}
+
 * {
   box-sizing: border-box;
 }
@@ -33,6 +44,7 @@ body {
   background: radial-gradient(circle at 20% 5%, #1b2b59 0%, transparent 30%),
     linear-gradient(160deg, var(--bg-start), var(--bg-end));
   min-height: 100vh;
+  transition: background 450ms ease, color 260ms ease;
 }
 
 .fade-in {
@@ -267,6 +279,13 @@ p {
   padding: 1.2rem;
 }
 
+.works-placeholder {
+  border: 1px dashed rgba(55, 242, 255, 0.35);
+  border-radius: var(--radius-md);
+  padding: 1rem;
+  color: var(--text-secondary);
+}
+
 .contact-layout {
   display: grid;
   grid-template-columns: 1fr 320px;
@@ -311,9 +330,13 @@ p {
   height: 460px;
 }
 
+.leaflet-container {
+  background: #0f1830;
+}
+
 .leaflet-control-attribution {
-  background: rgba(10, 18, 38, 0.72) !important;
-  color: #bdc9e9 !important;
+  background: var(--glass-bg) !important;
+  color: var(--text-secondary) !important;
 }
 
 .leaflet-popup-content-wrapper,
@@ -349,54 +372,8 @@ p {
   box-shadow: 0 0 15px rgba(55, 242, 255, 0.9), 0 0 24px rgba(187, 102, 255, 0.35);
 }
 
-.admin-panel {
-  border-radius: var(--radius-lg);
-  margin-top: 1rem;
-  padding: 0.9rem 1rem 1.1rem;
-}
-
-.admin-panel summary {
-  cursor: pointer;
-  font-weight: 600;
-}
-
-.admin-note {
-  margin-bottom: 0.6rem;
-}
-
-.footprint-form {
-  display: grid;
-  gap: 0.55rem;
-}
-
-.upload-dropzone {
-  border: 1px dashed rgba(55, 242, 255, 0.4);
-  border-radius: 12px;
-  min-height: 110px;
-  display: grid;
-  place-items: center;
-  text-align: center;
-  padding: 0.75rem;
-  position: relative;
-  cursor: pointer;
-}
-
-.upload-dropzone.dragging {
-  border-color: rgba(55, 242, 255, 0.8);
-  box-shadow: 0 0 18px rgba(55, 242, 255, 0.45);
-}
-
-.upload-dropzone input {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  cursor: pointer;
-}
-
-.upload-name {
-  font-size: 0.85rem;
-  color: #bdd4ff;
-  min-height: 1rem;
+.footprint-status {
+  margin-top: 0.65rem;
 }
 
 .orb {

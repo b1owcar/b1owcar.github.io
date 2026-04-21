@@ -1,13 +1,9 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta
-      name="description"
-      content="b1owcar personal website - glassmorphism dark neon style."
-    />
-    <title>b1owcar Studio</title>
+    <title>b1owcar - Coming Soon</title>
     <link rel="icon" href="./assets/icons/favicon.svg" type="image/svg+xml" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -15,233 +11,38 @@
       href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Poppins:wght@500;600;700&display=swap"
       rel="stylesheet"
     />
-    <link
-      rel="stylesheet"
-      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-      integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-      crossorigin=""
-    />
     <link rel="stylesheet" href="./assets/css/style.css" />
+    <style>
+      .coming-shell {
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 2rem;
+      }
+
+      .coming-card {
+        max-width: 720px;
+        text-align: center;
+      }
+
+      .coming-card h1 {
+        margin-bottom: 0.8rem;
+      }
+
+      .coming-card p {
+        margin-bottom: 1rem;
+      }
+    </style>
   </head>
   <body class="fade-in">
     <div class="neon-line neon-line-top" aria-hidden="true"></div>
     <div class="neon-line neon-line-bottom" aria-hidden="true"></div>
-
-    <header class="site-header glass-panel">
-      <div class="container nav-wrapper">
-        <a class="logo-link" href="#about" aria-label="Go to About section">
-          <img
-            src="./assets/images/logo.svg"
-            alt="b1owcar logo"
-            class="site-logo"
-          />
-          <span>b1owcar</span>
-        </a>
-        <div class="nav-actions">
-          <nav class="main-nav" aria-label="Main navigation">
-            <a href="#about" data-i18n="nav.about">About</a>
-            <a href="#studio" data-i18n="nav.studio">Studio</a>
-            <a href="#footprints" data-i18n="nav.footprints">My Footprints</a>
-            <a href="#contact" data-i18n="nav.contact">Contact</a>
-            <a href="#board" data-i18n="nav.board">Message Board</a>
-          </nav>
-          <div class="lang-dropdown">
-            <button id="lang-trigger" class="lang-trigger" type="button">
-              <span data-i18n="lang.label">语言</span>
-              <span class="arrow">▾</span>
-            </button>
-            <div id="lang-menu" class="lang-menu" role="menu">
-              <button type="button" data-lang="zh-CN">简体中文</button>
-              <button type="button" data-lang="zh-TW">繁體中文</button>
-              <button type="button" data-lang="en">English</button>
-            </div>
-          </div>
-        </div>
-      </div>
-    </header>
-
-    <main>
-      <section id="about" class="section">
-        <div class="container glass-panel section-card about-layout">
-          <div class="avatar-wrapper">
-            <img
-              src="./assets/images/avatar-placeholder.svg"
-              alt="Profile avatar placeholder"
-              class="avatar"
-            />
-          </div>
-          <div class="about-content">
-            <h1 data-i18n="about.title">About Me</h1>
-            <p data-i18n="about.p1">
-              I am currently a technician based in Macau. This section is a
-              placeholder, and I will update it with my full introduction soon.
-            </p>
-            <p data-i18n="about.p2">
-              My interests include technology, design, and cycling engineering.
-              I enjoy building practical ideas with creative visuals.
-            </p>
-            <div class="tag-list">
-              <span class="tag-pill">HTML</span>
-              <span class="tag-pill">JS</span>
-              <span class="tag-pill">UI Design</span>
-              <span class="tag-pill">Cycling Engineering</span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section id="studio" class="section">
-        <div class="container">
-          <div class="section-head">
-            <h2 class="neon-outline" data-i18n="studio.title">b1owcar Studio</h2>
-            <p class="subtitle" data-i18n="studio.since">Since 2021</p>
-            <p data-i18n="studio.desc">
-              This studio was created in 2021 as a non-profit effort to develop
-              personal interests and build meaningful works.
-            </p>
-          </div>
-          <div class="card-grid">
-            <article class="glass-panel feature-card">
-              <h3 data-i18n="studio.card1.title">Studio Positioning</h3>
-              <p data-i18n="studio.card1.desc">
-                A personal creative lab focused on useful digital experiences,
-                visual language, and lightweight technical experiments.
-              </p>
-            </article>
-            <article class="glass-panel feature-card">
-              <h3 data-i18n="studio.card2.title">Personal Projects</h3>
-              <p data-i18n="studio.card2.desc">
-                Placeholder for project highlights such as website concepts,
-                small productivity tools, and design-driven mini products.
-              </p>
-            </article>
-            <article class="glass-panel feature-card">
-              <h3 data-i18n="studio.card3.title">Future Direction</h3>
-              <p data-i18n="studio.card3.desc">
-                UI systems, practical tools, and cycling engineering ideas will
-                continue to be the core exploration areas moving forward.
-              </p>
-            </article>
-          </div>
-        </div>
-      </section>
-
-      <section id="footprints" class="section">
-        <div class="container">
-          <div class="section-head">
-            <h2 class="neon-outline" data-i18n="foot.title">My Footprints</h2>
-            <p class="subtitle" data-i18n="foot.subtitle">
-              A map of the places I've been
-            </p>
-          </div>
-          <div class="glass-panel map-wrap">
-            <div id="footprint-map" class="footprint-map"></div>
-          </div>
-          <details class="glass-panel admin-panel" id="admin-panel">
-            <summary data-i18n="foot.admin.title">Admin Mode</summary>
-            <p class="admin-note" data-i18n="foot.admin.note">
-              Use your GitHub Personal Access Token to create new footprint
-              issues.
-            </p>
-            <form id="footprint-form" class="footprint-form">
-              <label for="gh-token" data-i18n="foot.admin.token">GitHub Token</label>
-              <input id="gh-token" name="ghToken" type="password" placeholder="ghp_xxx" />
-
-              <label for="foot-name" data-i18n="foot.admin.place">Place Name</label>
-              <input id="foot-name" name="name" type="text" maxlength="80" required />
-
-              <label for="foot-desc" data-i18n="foot.admin.desc">Description</label>
-              <textarea id="foot-desc" name="description" maxlength="500" rows="3" required></textarea>
-
-              <div id="upload-dropzone" class="upload-dropzone">
-                <p data-i18n="foot.admin.upload">Drag image here or click to upload</p>
-                <input id="foot-image" name="image" type="file" accept="image/*" />
-              </div>
-              <p id="upload-name" class="upload-name"></p>
-
-              <label for="foot-lat" data-i18n="foot.admin.lat">Latitude</label>
-              <input id="foot-lat" name="lat" type="text" readonly required />
-
-              <label for="foot-lng" data-i18n="foot.admin.lng">Longitude</label>
-              <input id="foot-lng" name="lng" type="text" readonly required />
-
-              <button id="foot-submit" type="submit" class="btn-neon" data-i18n="foot.admin.submit">
-                Create Footprint Issue
-              </button>
-              <p id="foot-status" class="board-status" role="status"></p>
-            </form>
-          </details>
-        </div>
-      </section>
-
-      <section id="contact" class="section">
-        <div class="container contact-layout">
-          <div class="glass-panel section-card">
-            <h2 data-i18n="contact.title">Contact</h2>
-            <p><span data-i18n="contact.email">Email</span>: wwdpm.b1owcar@outlook.com</p>
-            <p>
-              GitHub:
-              <a href="https://github.com/b1owcar" target="_blank" rel="noreferrer"
-                >https://github.com/b1owcar</a
-              >
-            </p>
-            <a class="btn-neon" href="mailto:wwdpm.b1owcar@outlook.com"
-              data-i18n="contact.sendEmail">Send Email</a
-            >
-          </div>
-          <div class="glass-panel neon-illustration" aria-hidden="true">
-            <div class="orb orb-a"></div>
-            <div class="orb orb-b"></div>
-            <div class="orb orb-c"></div>
-          </div>
-        </div>
-      </section>
-
-      <section id="board" class="section">
-        <div class="container">
-          <div class="section-head">
-            <h2 data-i18n="board.title">Message Board</h2>
-            <p class="subtitle" data-i18n="board.subtitle">QQ-space inspired, modern glass edition</p>
-          </div>
-          <div class="board-layout">
-            <form id="message-form" class="glass-panel board-form">
-              <label for="name" data-i18n="board.name">Name</label>
-              <input id="name" name="name" type="text" maxlength="32" required />
-              <label for="message" data-i18n="board.message">Message</label>
-              <textarea
-                id="message"
-                name="message"
-                rows="4"
-                maxlength="300"
-                required
-              ></textarea>
-              <button type="submit" class="btn-neon" data-i18n="board.submit">Submit</button>
-              <p id="board-status" class="board-status" role="status"></p>
-            </form>
-            <div class="board-list-wrap">
-              <div id="board-list" class="board-list" aria-live="polite"></div>
-            </div>
-          </div>
-        </div>
+    <main class="coming-shell">
+      <section class="glass-panel section-card coming-card">
+        <img src="./assets/images/logo.svg" alt="b1owcar logo" class="site-logo" />
+        <h1 class="neon-outline">Coming Soon</h1>
+        <p>The new personal website is under refinement.</p>
       </section>
     </main>
-
-    <footer class="site-footer">
-      <div class="container">
-        <div class="footer-line"></div>
-        <p data-i18n="footer.copyright">© <span id="year"></span> b1owcar Studio. All rights reserved.</p>
-      </div>
-    </footer>
-
-    <script
-      src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-      integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-      crossorigin=""
-    ></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="./assets/js/config.example.js"></script>
-    <script src="./assets/js/github.config.example.js"></script>
-    <script src="./assets/js/footprints.js"></script>
-    <script src="./assets/js/main.js"></script>
   </body>
 </html>
