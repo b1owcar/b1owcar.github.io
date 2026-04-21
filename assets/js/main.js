@@ -27,12 +27,12 @@
       "studio.card3.title": "未来方向",
       "studio.card3.desc": "未来将继续围绕 UI 系统、实用工具和骑行工程进行持续探索。",
       "foot.title": "我的足迹",
-      "foot.subtitle": "我去过的地方地图",
+      "foot.subtitle": "",
       "contact.title": "联系我",
       "contact.email": "邮箱",
       "contact.sendEmail": "发送邮件",
       "board.title": "留言板",
-      "board.subtitle": "参考 QQ 空间风格的现代玻璃版",
+      "board.subtitle": "欢迎留言",
       "board.name": "昵称",
       "board.message": "留言内容",
       "board.submit": "提交",
@@ -43,9 +43,9 @@
       "board.status.submitting": "提交中...",
       "board.status.success": "留言发送成功。",
       "board.status.fail": "发送失败。",
-      "board.status.supabaseOk": "已连接 Supabase。",
-      "board.status.localMode": "当前使用 localStorage 模式。",
-      "board.status.supabaseFail": "Supabase 读取失败，已切换本地模式。"
+      "board.status.supabaseOk": "留言板已就绪。",
+      "board.status.localMode": "留言板已就绪。",
+      "board.status.supabaseFail": "留言服务暂时不可用，已切换备用模式。"
     },
     "zh-TW": {
       "nav.about": "關於我",
@@ -74,12 +74,12 @@
       "studio.card3.title": "未來方向",
       "studio.card3.desc": "未來將持續圍繞 UI 系統、實用工具與騎行工程展開探索。",
       "foot.title": "我的足跡",
-      "foot.subtitle": "我走過的地方地圖",
+      "foot.subtitle": "",
       "contact.title": "聯絡我",
       "contact.email": "信箱",
       "contact.sendEmail": "發送郵件",
       "board.title": "留言板",
-      "board.subtitle": "參考 QQ 空間風格的現代玻璃版",
+      "board.subtitle": "歡迎留言",
       "board.name": "暱稱",
       "board.message": "留言內容",
       "board.submit": "提交",
@@ -90,9 +90,9 @@
       "board.status.submitting": "提交中...",
       "board.status.success": "留言送出成功。",
       "board.status.fail": "送出失敗。",
-      "board.status.supabaseOk": "已連線 Supabase。",
-      "board.status.localMode": "目前使用 localStorage 模式。",
-      "board.status.supabaseFail": "Supabase 讀取失敗，已切換本地模式。"
+      "board.status.supabaseOk": "留言板已就緒。",
+      "board.status.localMode": "留言板已就緒。",
+      "board.status.supabaseFail": "留言服務暫時不可用，已切換備援模式。"
     },
     en: {
       "nav.about": "About",
@@ -121,12 +121,12 @@
       "studio.card3.title": "Future Direction",
       "studio.card3.desc": "The next focus continues on UI systems, practical tools, and cycling engineering experiments.",
       "foot.title": "My Footprints",
-      "foot.subtitle": "A map of the places I've been",
+      "foot.subtitle": "",
       "contact.title": "Contact",
       "contact.email": "Email",
       "contact.sendEmail": "Send Email",
       "board.title": "Message Board",
-      "board.subtitle": "QQ-space inspired, modern glass edition",
+      "board.subtitle": "Leave a message",
       "board.name": "Name",
       "board.message": "Message",
       "board.submit": "Submit",
@@ -137,9 +137,9 @@
       "board.status.submitting": "Submitting...",
       "board.status.success": "Message sent successfully.",
       "board.status.fail": "Failed to send message.",
-      "board.status.supabaseOk": "Connected to Supabase.",
-      "board.status.localMode": "Running in localStorage mode.",
-      "board.status.supabaseFail": "Supabase read failed, switched to local mode."
+      "board.status.supabaseOk": "Message board is ready.",
+      "board.status.localMode": "Message board is ready.",
+      "board.status.supabaseFail": "Message service is temporarily unavailable. Switched to fallback mode."
     }
   };
 

@@ -20,21 +20,21 @@
   const dict = {
     "zh-CN": {
       loading: "正在加载足迹...",
-      loaded: "足迹加载完成。",
+      loaded: "",
       loadFail: "加载足迹失败，请稍后重试。",
       popupDate: "时间",
       popupDesc: "描述"
     },
     "zh-TW": {
       loading: "正在載入足跡...",
-      loaded: "足跡載入完成。",
+      loaded: "",
       loadFail: "載入足跡失敗，請稍後再試。",
       popupDate: "時間",
       popupDesc: "描述"
     },
     en: {
       loading: "Loading footprints...",
-      loaded: "Footprints loaded.",
+      loaded: "",
       loadFail: "Failed to load footprints. Please try again later.",
       popupDate: "Date",
       popupDesc: "Description"
