@@ -3,6 +3,7 @@
   if (!mapEl || !window.L) return;
 
   const dataUrl = "./assets/data/footprints-heatmap.json";
+  const dataRequestUrl = `${dataUrl}?v=${Date.now()}`;
   const statusEl = document.getElementById("foot-status");
   if (!statusEl) return;
 
@@ -133,7 +134,7 @@
     }
 
     try {
-      const response = await fetch(dataUrl);
+      const response = await fetch(dataRequestUrl, { cache: "no-store" });
       if (!response.ok) {
         throw new Error(`status ${response.status}`);
       }
