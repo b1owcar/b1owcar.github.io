@@ -53,6 +53,21 @@ body[data-theme="light"] p {
   color: #304563;
 }
 
+body[data-theme="light"] .btn-neon {
+  color: #17345a;
+  border-color: rgba(40, 118, 176, 0.55);
+  background: rgba(55, 242, 255, 0.2);
+  box-shadow: 0 0 10px rgba(55, 242, 255, 0.22);
+}
+
+body[data-theme="light"] .btn-neon:hover,
+body[data-theme="light"] .btn-neon:focus-visible {
+  color: #102948;
+  border-color: rgba(121, 78, 201, 0.62);
+  background: rgba(187, 102, 255, 0.22);
+  box-shadow: 0 0 12px rgba(121, 78, 201, 0.24), 0 0 10px rgba(55, 242, 255, 0.22);
+}
+
 * {
   box-sizing: border-box;
 }
