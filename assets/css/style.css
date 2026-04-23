@@ -53,6 +53,44 @@ body[data-theme="light"] p {
   color: #304563;
 }
 
+body[data-theme="light"] #board h2 {
+  color: #1a2f53;
+}
+
+body[data-theme="light"] #board .subtitle {
+  color: #4d6389;
+}
+
+body[data-theme="light"] #board label {
+  color: #5a7097;
+}
+
+body[data-theme="light"] #board input,
+body[data-theme="light"] #board textarea {
+  color: #1f355c;
+}
+
+body[data-theme="light"] #board input::placeholder,
+body[data-theme="light"] #board textarea::placeholder {
+  color: #7f93b8;
+}
+
+body[data-theme="light"] #board .empty-message,
+body[data-theme="light"] #board .board-status {
+  color: #6a7ea3;
+}
+
+body[data-theme="light"] #board .message-card .time {
+  color: #6f83a8;
+}
+
+body[data-theme="light"] #board .message-card,
+body[data-theme="light"] #board .board-form,
+body[data-theme="light"] #board .board-list > .glass-panel {
+  border-color: rgba(120, 143, 182, 0.34);
+  box-shadow: 0 10px 20px rgba(57, 78, 109, 0.14), 0 0 14px rgba(55, 242, 255, 0.12);
+}
+
 body[data-theme="light"] .btn-neon {
   color: #17345a;
   border-color: rgba(40, 118, 176, 0.55);
