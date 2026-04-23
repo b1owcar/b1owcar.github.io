@@ -29,6 +29,30 @@ body[data-theme="light"] {
   --shadow-soft: 0 12px 26px rgba(57, 78, 109, 0.16);
 }
 
+body[data-theme="light"] .main-nav a {
+  color: #2f4466;
+}
+
+body[data-theme="light"] .main-nav a:hover,
+body[data-theme="light"] .main-nav a:focus-visible {
+  color: #162645;
+  background: rgba(55, 242, 255, 0.16);
+}
+
+body[data-theme="light"] .subtitle {
+  color: #5a6f95;
+}
+
+body[data-theme="light"] .neon-outline {
+  color: #20355e;
+  -webkit-text-stroke: 0;
+  text-shadow: 0 0 6px rgba(55, 242, 255, 0.2);
+}
+
+body[data-theme="light"] p {
+  color: #304563;
+}
+
 * {
   box-sizing: border-box;
 }

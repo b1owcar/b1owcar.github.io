@@ -2,18 +2,13 @@
   const mapEl = document.getElementById("footprint-map");
   if (!mapEl || !window.L) return;
 
-  const cfg = window.FOOTPRINTS_CONFIG || {};
-  const owner = cfg.owner || "b1owcar";
-  const repo = cfg.repo || "b1owcar.github.io";
-  const label = cfg.label || "footprint";
-  const issuesApi = `https://api.github.com/repos/${owner}/${repo}/issues?labels=${encodeURIComponent(
-    label
-  )}&state=open&per_page=100`;
+  const dataUrl = "./assets/data/footprints-heatmap.json";
   const statusEl = document.getElementById("foot-status");
   if (!statusEl) return;
 
   let map;
   let markersLayer = L.layerGroup();
+  let heatLayer = null;
   let currentTileLayer;
   let currentLang = localStorage.getItem("site-lang") || "zh-CN";
 
@@ -21,23 +16,32 @@
     "zh-CN": {
       loading: "正在加载足迹...",
       loaded: "",
-      loadFail: "加载足迹失败，请稍后重试。",
+      loadFail: "加载热力图失败，请稍后重试。",
+      noData: "暂无足迹数据。",
       popupDate: "时间",
-      popupDesc: "描述"
+      popupDesc: "描述",
+      popupDuration: "停留时长",
+      popupType: "类型"
     },
     "zh-TW": {
       loading: "正在載入足跡...",
       loaded: "",
-      loadFail: "載入足跡失敗，請稍後再試。",
+      loadFail: "載入熱力圖失敗，請稍後再試。",
+      noData: "暫無足跡資料。",
       popupDate: "時間",
-      popupDesc: "描述"
+      popupDesc: "描述",
+      popupDuration: "停留時長",
+      popupType: "類型"
     },
     en: {
       loading: "Loading footprints...",
       loaded: "",
-      loadFail: "Failed to load footprints. Please try again later.",
+      loadFail: "Failed to load heatmap data. Please try again later.",
+      noData: "No footprint data available.",
       popupDate: "Date",
-      popupDesc: "Description"
+      popupDesc: "Description",
+      popupDuration: "Duration",
+      popupType: "Type"
     }
   };
 
@@ -52,7 +56,7 @@
 
   function mapTilesByTheme(theme) {
     if (theme === "light") {
-      return "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png";
+      return "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png";
     }
     return "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png";
   }
@@ -74,35 +78,39 @@
     markersLayer.addTo(map);
   }
 
-  function parseIssue(issue) {
-    try {
-      const bodyJson = JSON.parse(issue.body || "{}");
-      if (!bodyJson.lat || !bodyJson.lng) return null;
-      return {
-        title: issue.title,
-        lat: Number(bodyJson.lat),
-        lng: Number(bodyJson.lng),
-        date: bodyJson.date || issue.created_at?.slice(0, 10),
-        description: bodyJson.description || "",
-        image: bodyJson.image || "",
-        url: issue.html_url
-      };
-    } catch (_error) {
-      return null;
+  function formatDuration(days) {
+    if (days >= 365) {
+      const years = days / 365;
+      return `${years.toFixed(1)}y`;
     }
+    if (days >= 30) {
+      return `${(days / 30).toFixed(1)}mo`;
+    }
+    if (days >= 1) {
+      return `${days.toFixed(days < 10 ? 1 : 0)}d`;
+    }
+    return `${Math.round(days * 24)}h`;
+  }
+
+  function normalizeWeights(points) {
+    const max = Math.max(...points.map((point) => point.duration_days), 1);
+    return points.map((point) => {
+      // Log scaling keeps short stays visible while preserving long-stay dominance.
+      const weight = Math.log1p(point.duration_days) / Math.log1p(max);
+      return {
+        ...point,
+        heatWeight: Math.max(0.08, Math.min(1, Number(weight.toFixed(4))))
+      };
+    });
   }
 
   function createPopupHtml(point) {
-    const imageNode = point.image
-      ? `<img src="${point.image}" alt="${point.title}" />`
-      : "";
     return `
       <div class="footprint-popup">
-        <h4>${point.title}</h4>
-        ${imageNode}
-        <p class="date">${tx("popupDate")}: ${point.date || "-"}</p>
-        <p>${tx("popupDesc")}: ${point.description || "-"}</p>
-        <a href="${point.url}" target="_blank" rel="noreferrer">GitHub Issue</a>
+        <h4>${point.label}</h4>
+        <p class="date">${tx("popupType")}: ${point.category}</p>
+        <p>${tx("popupDuration")}: ${formatDuration(point.duration_days)}</p>
+        <p>${tx("popupDesc")}: ${point.note || "-"}</p>
       </div>
     `;
   }
@@ -119,20 +127,47 @@
   async function fetchFootprints() {
     setStatus(tx("loading"));
     markersLayer.clearLayers();
+    if (heatLayer) {
+      map.removeLayer(heatLayer);
+      heatLayer = null;
+    }
 
     try {
-      const response = await fetch(issuesApi, {
-        headers: { Accept: "application/vnd.github+json" }
-      });
+      const response = await fetch(dataUrl);
       if (!response.ok) {
         throw new Error(`status ${response.status}`);
       }
-      const issues = await response.json();
-      const points = issues.map(parseIssue).filter(Boolean);
+      const payload = await response.json();
+      const rawPoints = Array.isArray(payload.points) ? payload.points : [];
+      if (!rawPoints.length) {
+        setStatus(tx("noData"), true);
+        return;
+      }
+      const points = normalizeWeights(rawPoints);
+
+      heatLayer = L.heatLayer(
+        points.map((point) => [point.lat, point.lng, point.heatWeight]),
+        {
+          radius: 30,
+          blur: 24,
+          maxZoom: 8,
+          minOpacity: 0.35,
+          gradient: {
+            0.2: "#5de2ff",
+            0.45: "#4fc3ff",
+            0.7: "#9f6bff",
+            1.0: "#ff6fcf"
+          }
+        }
+      );
+      heatLayer.addTo(map);
+
       points.forEach((point) => {
         const marker = L.marker([point.lat, point.lng], { icon: neonIcon() }).addTo(markersLayer);
         marker.bindPopup(createPopupHtml(point), { maxWidth: 300 });
       });
+      const bounds = L.latLngBounds(points.map((point) => [point.lat, point.lng]));
+      map.fitBounds(bounds.pad(0.12));
       setStatus(tx("loaded"));
     } catch (_error) {
       setStatus(tx("loadFail"), true);

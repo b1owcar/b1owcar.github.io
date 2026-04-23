@@ -147,44 +147,103 @@
   let currentLang = i18n[defaultLang] ? defaultLang : "zh-CN";
   const macauLat = 22.1987;
   const macauLng = 113.5439;
+  const macauTimeZone = "Asia/Macau";
+  const sunCacheKey = "macau-sun-times";
 
   function t(key) {
     return i18n[currentLang][key] || key;
   }
 
   function applyTheme(theme) {
+    const currentTheme = document.body.getAttribute("data-theme");
+    if (currentTheme === theme) return;
     document.body.setAttribute("data-theme", theme);
     window.dispatchEvent(new CustomEvent("themechange", { detail: { theme } }));
   }
 
-  function localMacauMinutes() {
-    const now = new Date();
-    const utcMs = now.getTime() + now.getTimezoneOffset() * 60000;
-    const macau = new Date(utcMs + 8 * 60 * 60000);
-    return macau.getHours() * 60 + macau.getMinutes();
+  function getMacauNowParts() {
+    const parts = new Intl.DateTimeFormat("en-CA", {
+      timeZone: macauTimeZone,
+      year: "numeric",
+      month: "2-digit",
+      day: "2-digit",
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(new Date());
+
+    const map = {};
+    parts.forEach((part) => {
+      if (part.type !== "literal") map[part.type] = part.value;
+    });
+
+    return {
+      date: `${map.year}-${map.month}-${map.day}`,
+      minutes: Number(map.hour) * 60 + Number(map.minute)
+    };
+  }
+
+  function toMacauMinutes(isoString) {
+    const date = new Date(isoString);
+    const parts = new Intl.DateTimeFormat("en-GB", {
+      timeZone: macauTimeZone,
+      hour: "2-digit",
+      minute: "2-digit",
+      hourCycle: "h23"
+    }).formatToParts(date);
+    const map = {};
+    parts.forEach((part) => {
+      if (part.type !== "literal") map[part.type] = part.value;
+    });
+    return Number(map.hour) * 60 + Number(map.minute);
   }
 
   function decideThemeBySunriseSunset(sunriseIso, sunsetIso) {
-    const sunrise = new Date(sunriseIso);
-    const sunset = new Date(sunsetIso);
-    const sunriseMin = sunrise.getUTCHours() * 60 + sunrise.getUTCMinutes() + 8 * 60;
-    const sunsetMin = sunset.getUTCHours() * 60 + sunset.getUTCMinutes() + 8 * 60;
-    const nowMin = localMacauMinutes();
+    const sunriseMin = toMacauMinutes(sunriseIso);
+    const sunsetMin = toMacauMinutes(sunsetIso);
+    const nowMin = getMacauNowParts().minutes;
     return nowMin >= sunriseMin && nowMin < sunsetMin ? "light" : "dark";
   }
 
-  async function syncThemeByMacauSun() {
+  function readSunCache() {
     try {
-      const url = `https://api.sunrise-sunset.org/json?lat=${macauLat}&lng=${macauLng}&formatted=0`;
-      const response = await fetch(url);
-      const data = await response.json();
-      if (!response.ok || data.status !== "OK") {
-        throw new Error("sun api error");
-      }
-      applyTheme(decideThemeBySunriseSunset(data.results.sunrise, data.results.sunset));
+      return JSON.parse(localStorage.getItem(sunCacheKey) || "null");
     } catch (_error) {
-      const hour = new Date().getHours();
-      applyTheme(hour >= 7 && hour < 19 ? "light" : "dark");
+      return null;
+    }
+  }
+
+  function writeSunCache(payload) {
+    localStorage.setItem(sunCacheKey, JSON.stringify(payload));
+  }
+
+  async function fetchSunTimesForDate(dateStr) {
+    const url = `https://api.sunrise-sunset.org/json?lat=${macauLat}&lng=${macauLng}&date=${dateStr}&formatted=0`;
+    const response = await fetch(url);
+    const data = await response.json();
+    if (!response.ok || data.status !== "OK") {
+      throw new Error("sun api error");
+    }
+    return data.results;
+  }
+
+  async function syncThemeByMacauSun() {
+    const macauNow = getMacauNowParts();
+    try {
+      let sunData = readSunCache();
+      if (!sunData || sunData.date !== macauNow.date) {
+        const results = await fetchSunTimesForDate(macauNow.date);
+        sunData = {
+          date: macauNow.date,
+          sunrise: results.sunrise,
+          sunset: results.sunset
+        };
+        writeSunCache(sunData);
+      }
+      applyTheme(decideThemeBySunriseSunset(sunData.sunrise, sunData.sunset));
+    } catch (_error) {
+      const fallbackTheme = macauNow.minutes >= 7 * 60 && macauNow.minutes < 19 * 60 ? "light" : "dark";
+      applyTheme(fallbackTheme);
     }
   }
 
