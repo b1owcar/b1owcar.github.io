@@ -4,6 +4,8 @@
 
   const dataUrl = "./assets/data/footprints-heatmap.json";
   const dataRequestUrl = `${dataUrl}?v=${Date.now()}`;
+  const geoJsonUrl = "./assets/data/footprints-regions.geojson";
+  const geoJsonRequestUrl = `${geoJsonUrl}?v=${Date.now()}`;
   const statusEl = document.getElementById("foot-status");
   if (!statusEl) return;
 
@@ -243,6 +245,44 @@
     };
   }
 
+  function createFeatureByGeoJson(region, sourceFeature) {
+    const geometry = sourceFeature && sourceFeature.geometry ? sourceFeature.geometry : null;
+    if (!geometry || !Array.isArray(geometry.coordinates)) return null;
+    return {
+      type: "Feature",
+      properties: {
+        id: region.id,
+        name: region.name,
+        category: region.category,
+        area_level: region.area_level,
+        duration_days: region.duration_days,
+        note: region.note || ""
+      },
+      geometry
+    };
+  }
+
+  async function fetchRegionGeoJsonMap() {
+    try {
+      const response = await fetch(geoJsonRequestUrl, { cache: "no-store" });
+      if (!response.ok) return new Map();
+      const payload = await response.json();
+      const features = Array.isArray(payload.features) ? payload.features : [];
+      const mapById = new Map();
+      features.forEach((feature) => {
+        const id =
+          (feature.properties && feature.properties.id) ||
+          (feature.properties && feature.properties.region_id);
+        if (typeof id === "string" && id) {
+          mapById.set(id, feature);
+        }
+      });
+      return mapById;
+    } catch (_error) {
+      return new Map();
+    }
+  }
+
   function neonIcon(category) {
     const cls = category === "transit" ? "footprint-dot transit" : "footprint-dot";
     const size = category === "transit" ? 9 : 14;
@@ -290,6 +330,7 @@
       }
 
       const tierMap = computeTiersByCategory(regions);
+      const geoJsonMap = await fetchRegionGeoJsonMap();
       const polygonFeatures = [];
       regions.forEach((region) => {
         const tier = tierMap.get(region.id) || 1;
@@ -298,7 +339,8 @@
           marker.bindPopup(createPopupHtml(region), { maxWidth: 320 });
           return;
         }
-        const feature = toGeoJsonFeature(region);
+        const sourceFeature = geoJsonMap.get(region.id);
+        const feature = createFeatureByGeoJson(region, sourceFeature) || toGeoJsonFeature(region);
         feature.properties.tier = tier;
         feature.properties.current_residence = Boolean(region.current_residence);
         polygonFeatures.push(feature);
