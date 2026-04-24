@@ -156,30 +156,40 @@
   }
 
   function styleByCategoryAndTier(category, tier, isCurrentResidence) {
+    const tierIndex = Math.max(0, Math.min(4, 5 - tier));
     if (isCurrentResidence) {
-      const fillOpacity = 0.2 + tier * 0.1;
+      const currentPalette = ["#ffd8a8", "#ffbe76", "#ffa94d", "#ff922b", "#ff7f11"];
       return {
-        color: "#ffe79e",
-        fillColor: "#ff9f43",
-        weight: 2.2,
-        fillOpacity: Math.min(0.78, fillOpacity),
+        color: "#fff1cc",
+        fillColor: currentPalette[tierIndex],
+        weight: 2.6,
+        fillOpacity: 0.78,
         radius: 0
       };
     }
     const byCategory = {
-      longstay: { base: "#37f2ff", stroke: "#8bf8ff" },
-      travel: { base: "#bb66ff", stroke: "#d6a9ff" },
-      transit: { base: "#ffd166", stroke: "#ffe5a5" }
+      longstay: {
+        fill: ["#b7fbff", "#7df4ff", "#43e8ff", "#22d3ee", "#0ea5c6"],
+        stroke: "#7df4ff"
+      },
+      travel: {
+        fill: ["#efccff", "#d79bff", "#bf6eff", "#9a42f5", "#7c2bd1"],
+        stroke: "#d9a8ff"
+      },
+      transit: {
+        fill: ["#ffe9a3", "#ffd978", "#ffcb52", "#ffb703", "#fb8500"],
+        stroke: "#ffe29a"
+      }
     };
     const palette = byCategory[category] || byCategory.travel;
-    const fillOpacity = 0.18 + tier * 0.1;
-    const radiusKm = 16 + tier * 14;
+    const fillOpacity = 0.22 + tier * 0.11;
     return {
       color: palette.stroke,
-      fillColor: palette.base,
-      weight: 1.6,
-      fillOpacity: Math.min(0.72, fillOpacity),
-      radius: radiusKm * 1000
+      fillColor: palette.fill[tierIndex],
+      weight: category === "travel" ? 1.8 : 2,
+      dashArray: category === "travel" ? "5 3" : null,
+      fillOpacity: Math.min(0.8, fillOpacity),
+      radius: 0
     };
   }
 
@@ -200,13 +210,18 @@
     const size = boundarySizeByAreaLevel(region.area_level);
     const lat = Number(region.lat);
     const lng = Number(region.lng);
-    return [
-      [lat - size.lat, lng - size.lng],
-      [lat - size.lat, lng + size.lng],
-      [lat + size.lat, lng + size.lng],
-      [lat + size.lat, lng - size.lng],
-      [lat - size.lat, lng - size.lng]
-    ];
+    // Use an ellipse-like polygon as fallback to avoid rough square blocks.
+    const points = [];
+    const steps = 14;
+    for (let i = 0; i <= steps; i += 1) {
+      const theta = (Math.PI * 2 * i) / steps;
+      const jitter = 1 + 0.08 * Math.sin(i * 1.7);
+      points.push([
+        lat + Math.sin(theta) * size.lat * jitter,
+        lng + Math.cos(theta) * size.lng * jitter
+      ]);
+    }
+    return points;
   }
 
   function toGeoJsonFeature(region) {
@@ -230,11 +245,12 @@
 
   function neonIcon(category) {
     const cls = category === "transit" ? "footprint-dot transit" : "footprint-dot";
+    const size = category === "transit" ? 9 : 14;
     return L.divIcon({
       className: "footprint-icon-wrap",
       html: `<div class="${cls}"></div>`,
-      iconSize: [14, 14],
-      iconAnchor: [7, 7]
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2]
     });
   }
 

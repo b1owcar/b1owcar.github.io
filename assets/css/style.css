@@ -477,8 +477,10 @@ p {
 }
 
 .footprint-dot.transit {
-  background: radial-gradient(circle, rgba(255, 209, 102, 0.95), rgba(255, 209, 102, 0.45));
-  box-shadow: 0 0 15px rgba(255, 209, 102, 0.9), 0 0 20px rgba(255, 162, 0, 0.45);
+  width: 9px;
+  height: 9px;
+  background: radial-gradient(circle, rgba(255, 209, 102, 0.9), rgba(255, 209, 102, 0.42));
+  box-shadow: 0 0 8px rgba(255, 209, 102, 0.8), 0 0 12px rgba(255, 162, 0, 0.35);
 }
 
 .footprint-status {
@@ -516,6 +518,7 @@ p {
   width: 10px;
   height: 10px;
   border-radius: 50%;
+  border: 1px solid rgba(255, 255, 255, 0.75);
   margin-right: 0.4rem;
   vertical-align: baseline;
 }
