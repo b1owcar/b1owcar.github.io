@@ -195,39 +195,106 @@
     };
   }
 
-  function boundarySizeByAreaLevel(areaLevel) {
+  function hashRegionId(id) {
+    const key = String(id || "region");
+    let hash = 2166136261;
+    for (let i = 0; i < key.length; i += 1) {
+      hash ^= key.charCodeAt(i);
+      hash = Math.imul(hash, 16777619);
+    }
+    return hash >>> 0;
+  }
+
+  function shapeSeed(region) {
+    const hash = hashRegionId(region.id);
+    return {
+      hash,
+      rotation: ((hash % 180) - 90) * (Math.PI / 180),
+      stretchLat: 0.72 + ((hash >> 8) % 56) / 100,
+      stretchLng: 0.72 + ((hash >> 16) % 56) / 100,
+      shapeType: hash % 5,
+      vertexCount: 9 + (hash % 8)
+    };
+  }
+
+  function boundarySizeByAreaLevel(areaLevel, seed) {
     const table = {
-      sar: { lat: 0.12, lng: 0.16 },
-      city: { lat: 0.22, lng: 0.28 },
-      district: { lat: 0.1, lng: 0.12 },
-      county: { lat: 0.16, lng: 0.2 },
-      town: { lat: 0.08, lng: 0.1 },
+      sar: { lat: 0.1, lng: 0.14 },
+      city: { lat: 0.2, lng: 0.3 },
+      district: { lat: 0.09, lng: 0.11 },
+      county: { lat: 0.14, lng: 0.22 },
+      town: { lat: 0.07, lng: 0.09 },
       airport: { lat: 0.05, lng: 0.06 },
       station: { lat: 0.04, lng: 0.05 }
     };
-    return table[areaLevel] || { lat: 0.14, lng: 0.18 };
+    const base = table[areaLevel] || { lat: 0.12, lng: 0.17 };
+    return {
+      lat: base.lat * seed.stretchLat,
+      lng: base.lng * seed.stretchLng
+    };
+  }
+
+  function radiusAtAngle(theta, size, seed) {
+    const waveA = 1 + 0.14 * Math.sin(theta * 2 + seed.hash * 0.00001);
+    const waveB = 1 + 0.1 * Math.cos(theta * 3 + seed.hash * 0.00002);
+    let radius = waveA * waveB;
+    if (seed.shapeType === 1) {
+      radius *= 1 + 0.22 * Math.pow(Math.abs(Math.cos(theta)), 0.65);
+    } else if (seed.shapeType === 2) {
+      radius *= 1 + 0.18 * Math.pow(Math.abs(Math.sin(theta * 2)), 0.8);
+    } else if (seed.shapeType === 3) {
+      radius *= 0.86 + 0.28 * Math.pow(Math.abs(Math.sin(theta * 1.5)), 1.1);
+    } else if (seed.shapeType === 4) {
+      radius *= 0.9 + 0.2 * Math.cos(theta * 4 + 0.6);
+    }
+    return {
+      lat: size.lat * radius,
+      lng: size.lng * radius
+    };
   }
 
   function buildFallbackBoundary(region) {
-    const size = boundarySizeByAreaLevel(region.area_level);
+    const seed = shapeSeed(region);
+    const size = boundarySizeByAreaLevel(region.area_level, seed);
     const lat = Number(region.lat);
     const lng = Number(region.lng);
-    // Use an ellipse-like polygon as fallback to avoid rough square blocks.
+    const cosR = Math.cos(seed.rotation);
+    const sinR = Math.sin(seed.rotation);
     const points = [];
-    const steps = 14;
-    for (let i = 0; i <= steps; i += 1) {
+    const steps = seed.vertexCount;
+    for (let i = 0; i < steps; i += 1) {
       const theta = (Math.PI * 2 * i) / steps;
-      const jitter = 1 + 0.08 * Math.sin(i * 1.7);
-      points.push([
-        lat + Math.sin(theta) * size.lat * jitter,
-        lng + Math.cos(theta) * size.lng * jitter
-      ]);
+      const radius = radiusAtAngle(theta, size, seed);
+      const localLat = Math.sin(theta) * radius.lat;
+      const localLng = Math.cos(theta) * radius.lng;
+      points.push([lat + localLat * cosR - localLng * sinR, lng + localLat * sinR + localLng * cosR]);
     }
     return points;
   }
 
-  function toGeoJsonFeature(region) {
-    const boundary = Array.isArray(region.boundary) && region.boundary.length >= 4 ? region.boundary : buildFallbackBoundary(region);
+  function diversifyBoundary(boundary, region) {
+    if (!Array.isArray(boundary) || boundary.length < 4) return boundary;
+    const seed = shapeSeed(region);
+    const lat = Number(region.lat);
+    const lng = Number(region.lng);
+    const cosR = Math.cos(seed.rotation * 0.55);
+    const sinR = Math.sin(seed.rotation * 0.55);
+    const scaleLat = 0.9 + (seed.stretchLat - 0.72) * 0.35;
+    const scaleLng = 0.9 + (seed.stretchLng - 0.72) * 0.35;
+    return boundary.map((coord, index) => {
+      const pLat = Number(coord[0]);
+      const pLng = Number(coord[1]);
+      const dLat = (pLat - lat) * scaleLat;
+      const dLng = (pLng - lng) * scaleLng;
+      const wobble = 1 + 0.035 * Math.sin(index * 1.9 + seed.hash * 0.00001);
+      const rLat = dLat * wobble;
+      const rLng = dLng * wobble;
+      return [lat + rLat * cosR - rLng * sinR, lng + rLat * sinR + rLng * cosR];
+    });
+  }
+
+  function featureFromBoundary(region, boundary) {
+    const ring = boundary.map((coord) => [coord[1], coord[0]]);
     return {
       type: "Feature",
       properties: {
@@ -240,26 +307,33 @@
       },
       geometry: {
         type: "Polygon",
-        coordinates: [boundary.map((coord) => [coord[1], coord[0]])]
+        coordinates: [ring]
       }
     };
   }
 
-  function createFeatureByGeoJson(region, sourceFeature) {
-    const geometry = sourceFeature && sourceFeature.geometry ? sourceFeature.geometry : null;
+  function resolveRegionFeature(region, geoJsonMap) {
+    const hasInlineBoundary = Array.isArray(region.boundary) && region.boundary.length >= 4;
+    if (hasInlineBoundary) {
+      return featureFromBoundary(region, diversifyBoundary(region.boundary, region));
+    }
+    const sourceFeature = geoJsonMap.get(region.id);
+    const geoBoundary = sourceFeature ? boundaryFromGeometry(sourceFeature.geometry) : null;
+    if (geoBoundary) {
+      return featureFromBoundary(region, diversifyBoundary(geoBoundary, region));
+    }
+    return featureFromBoundary(region, buildFallbackBoundary(region));
+  }
+
+  function boundaryFromGeometry(geometry) {
     if (!geometry || !Array.isArray(geometry.coordinates)) return null;
-    return {
-      type: "Feature",
-      properties: {
-        id: region.id,
-        name: region.name,
-        category: region.category,
-        area_level: region.area_level,
-        duration_days: region.duration_days,
-        note: region.note || ""
-      },
-      geometry
-    };
+    if (geometry.type === "Polygon") {
+      return geometry.coordinates[0].map(([lng, lat]) => [lat, lng]);
+    }
+    if (geometry.type === "MultiPolygon" && geometry.coordinates[0] && geometry.coordinates[0][0]) {
+      return geometry.coordinates[0][0].map(([lng, lat]) => [lat, lng]);
+    }
+    return null;
   }
 
   async function fetchRegionGeoJsonMap() {
@@ -339,8 +413,7 @@
           marker.bindPopup(createPopupHtml(region), { maxWidth: 320 });
           return;
         }
-        const sourceFeature = geoJsonMap.get(region.id);
-        const feature = createFeatureByGeoJson(region, sourceFeature) || toGeoJsonFeature(region);
+        const feature = resolveRegionFeature(region, geoJsonMap);
         feature.properties.tier = tier;
         feature.properties.current_residence = Boolean(region.current_residence);
         polygonFeatures.push(feature);
