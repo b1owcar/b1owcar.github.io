@@ -24,6 +24,12 @@
     <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
   <body class="fade-in">
+    <canvas id="ambient-wave-canvas" class="ambient-wave-canvas" aria-hidden="true"></canvas>
+    <audio id="ambient-audio" src="./ambient.mp3" loop preload="auto"></audio>
+    <div class="ambient-controls glass-panel" id="ambient-controls">
+      <button id="ambient-play" class="ambient-btn" type="button" aria-label="Pause music">⏸</button>
+      <button id="ambient-mute" class="ambient-btn" type="button" aria-label="Mute">🔊</button>
+    </div>
     <div class="neon-line neon-line-top" aria-hidden="true"></div>
     <div class="neon-line neon-line-bottom" aria-hidden="true"></div>
 
@@ -203,5 +209,6 @@
     <script src="https://cdn.jsdelivr.net/npm/leaflet.heat@0.2.0/dist/leaflet-heat.js"></script>
     <script src="./assets/js/footprints.js"></script>
     <script src="./assets/js/main.js"></script>
+    <script src="./assets/js/ambient.js"></script>
   </body>
 </html>

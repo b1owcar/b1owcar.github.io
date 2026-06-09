@@ -138,10 +138,61 @@ body {
   margin: 0;
   color: var(--text-primary);
   font-family: "Inter", sans-serif;
-  background: radial-gradient(circle at 20% 5%, #1b2b59 0%, transparent 30%),
-    linear-gradient(160deg, var(--bg-start), var(--bg-end));
+  background: var(--bg-start);
   min-height: 100vh;
-  transition: background 450ms ease, color 260ms ease;
+  transition: color 260ms ease;
+}
+
+.ambient-wave-canvas {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.ambient-controls {
+  position: fixed;
+  left: 1rem;
+  bottom: 1rem;
+  z-index: 130;
+  display: inline-flex;
+  gap: 0.45rem;
+  padding: 0.45rem;
+  border-radius: 14px;
+}
+
+.ambient-btn {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(55, 242, 255, 0.45);
+  border-radius: 10px;
+  background: rgba(255, 255, 255, 0.08);
+  color: var(--text-primary);
+  font-size: 1rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: box-shadow var(--transition), background var(--transition), transform var(--transition);
+}
+
+.ambient-btn:hover,
+.ambient-btn:focus-visible {
+  background: rgba(55, 242, 255, 0.14);
+  box-shadow: 0 0 12px rgba(55, 242, 255, 0.35);
+  outline: none;
+  transform: translateY(-1px);
+}
+
+body[data-theme="light"] .ambient-btn {
+  color: #17345a;
+  border-color: rgba(40, 118, 176, 0.5);
+  background: rgba(255, 255, 255, 0.84);
+}
+
+main,
+.site-footer,
+.neon-line {
+  position: relative;
+  z-index: 1;
 }
 
 .fade-in {
@@ -758,6 +809,18 @@ textarea:focus {
 @media (max-width: 640px) {
   :root {
     --header-height: 150px;
+  }
+
+  .ambient-controls {
+    left: 0.75rem;
+    bottom: 0.75rem;
+    padding: 0.35rem;
+  }
+
+  .ambient-btn {
+    width: 36px;
+    height: 36px;
+    font-size: 0.92rem;
   }
 
   .site-header {
