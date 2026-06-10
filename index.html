@@ -28,10 +28,6 @@
       <canvas id="ambient-wave-canvas" class="ambient-wave-canvas"></canvas>
     </div>
     <audio id="ambient-audio" src="./ambient.mp3" loop preload="auto"></audio>
-    <div class="ambient-controls glass-panel" id="ambient-controls">
-      <button id="ambient-play" class="ambient-btn" type="button" aria-label="Pause music">⏸</button>
-      <button id="ambient-mute" class="ambient-btn" type="button" aria-label="Mute">🔊</button>
-    </div>
     <div class="neon-line neon-line-top" aria-hidden="true"></div>
     <div class="neon-line neon-line-bottom" aria-hidden="true"></div>
 
@@ -54,15 +50,21 @@
             <a href="#contact" data-i18n="nav.contact">Contact</a>
             <a href="#board" data-i18n="nav.board">Message Board</a>
           </nav>
-          <div class="lang-dropdown">
-            <button id="lang-trigger" class="lang-trigger" type="button">
-              <span data-i18n="lang.label">语言</span>
-              <span class="arrow">▾</span>
-            </button>
-            <div id="lang-menu" class="lang-menu" role="menu">
-              <button type="button" data-lang="zh-CN">简体中文</button>
-              <button type="button" data-lang="zh-TW">繁體中文</button>
-              <button type="button" data-lang="en">English</button>
+          <div class="nav-utilities">
+            <div class="ambient-controls" id="ambient-controls">
+              <button id="ambient-play" class="ambient-btn" type="button" aria-label="Pause music">⏸</button>
+              <button id="ambient-mute" class="ambient-btn" type="button" aria-label="Mute">🔊</button>
+            </div>
+            <div class="lang-dropdown">
+              <button id="lang-trigger" class="lang-trigger" type="button">
+                <span data-i18n="lang.label">语言</span>
+                <span class="arrow">▾</span>
+              </button>
+              <div id="lang-menu" class="lang-menu" role="menu">
+                <button type="button" data-lang="zh-CN">简体中文</button>
+                <button type="button" data-lang="zh-TW">繁體中文</button>
+                <button type="button" data-lang="en">English</button>
+              </div>
             </div>
           </div>
         </div>
