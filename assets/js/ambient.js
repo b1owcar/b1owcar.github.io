@@ -50,12 +50,29 @@
     };
   }
 
+  let canvasWidth = 0;
+  let canvasHeight = 0;
+
+  function getPageHeight() {
+    return Math.max(
+      document.documentElement.scrollHeight,
+      document.body.scrollHeight,
+      window.innerHeight
+    );
+  }
+
   function resizeCanvas() {
     const ratio = Math.min(window.devicePixelRatio || 1, 2);
-    canvas.width = Math.floor(window.innerWidth * ratio);
-    canvas.height = Math.floor(window.innerHeight * ratio);
-    canvas.style.width = `${window.innerWidth}px`;
-    canvas.style.height = `${window.innerHeight}px`;
+    canvasWidth = window.innerWidth;
+    canvasHeight = getPageHeight();
+    canvas.width = Math.floor(canvasWidth * ratio);
+    canvas.height = Math.floor(canvasHeight * ratio);
+    canvas.style.width = `${canvasWidth}px`;
+    canvas.style.height = `${canvasHeight}px`;
+    const backdrop = canvas.parentElement;
+    if (backdrop) {
+      backdrop.style.height = `${canvasHeight}px`;
+    }
     ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
   }
 
@@ -111,44 +128,75 @@
     ctx.stroke();
   }
 
-  function drawBars(width, height, levels, colors) {
+  function drawBarsInSegment(width, top, segmentHeight, levels, colors) {
     const barWidth = width / levels.length;
-    const maxBarHeight = height * 0.22;
+    const maxBarHeight = segmentHeight * 0.24;
+    const baseY = top + segmentHeight;
     levels.forEach((level, index) => {
       const barHeight = level * maxBarHeight;
       const x = index * barWidth;
-      const gradient = ctx.createLinearGradient(0, height, 0, height - barHeight);
+      const gradient = ctx.createLinearGradient(0, baseY, 0, baseY - barHeight);
       gradient.addColorStop(0, colors.cyan);
       gradient.addColorStop(1, colors.purple);
       ctx.fillStyle = gradient;
-      ctx.globalAlpha = 0.14 + level * 0.2;
-      ctx.fillRect(x + barWidth * 0.15, height - barHeight, barWidth * 0.7, barHeight);
+      ctx.globalAlpha = 0.1 + level * 0.18;
+      ctx.fillRect(x + barWidth * 0.15, baseY - barHeight, barWidth * 0.7, barHeight);
     });
     ctx.globalAlpha = 1;
   }
 
+  function drawAmbientGlows(width, height, colors, phase) {
+    const segment = Math.max(window.innerHeight * 0.85, 520);
+    const glowCount = Math.ceil(height / segment);
+    for (let i = 0; i < glowCount; i += 1) {
+      const centerY = i * segment + segment * 0.45 + Math.sin(phase + i) * 24;
+      const centerX = width * (0.22 + (i % 3) * 0.28);
+      const radius = Math.min(width, segment) * 0.34;
+      const glow = ctx.createRadialGradient(centerX, centerY, 0, centerX, centerY, radius);
+      glow.addColorStop(0, i % 2 === 0 ? `${colors.cyan}22` : `${colors.purple}20`);
+      glow.addColorStop(1, "transparent");
+      ctx.fillStyle = glow;
+      ctx.fillRect(centerX - radius, centerY - radius, radius * 2, radius * 2);
+    }
+  }
+
+  function drawWaveBands(width, height, levels, colors, phase) {
+    const segment = Math.max(window.innerHeight * 0.9, 540);
+    const bandCount = Math.max(2, Math.ceil(height / segment));
+    ctx.globalAlpha = 0.36;
+    for (let band = 0; band < bandCount; band += 1) {
+      const top = band * segment;
+      const segmentHeight = Math.min(segment, height - top);
+      const yRatios = [0.38, 0.58, 0.76];
+      yRatios.forEach((ratio, index) => {
+        const absoluteRatio = (top + segmentHeight * ratio) / height;
+        const color = index % 2 === 0 ? colors.cyan : colors.purple;
+        const amplitude = Math.min(segmentHeight * 0.11, 72);
+        drawWaveLine(width, height, absoluteRatio, levels, color, amplitude, phase + band * 1.1 + index * 0.6);
+      });
+      drawBarsInSegment(width, top, segmentHeight, levels, colors);
+    }
+    ctx.globalAlpha = 1;
+  }
+
   function renderFrame() {
-    const width = window.innerWidth;
-    const height = window.innerHeight;
+    const width = canvasWidth || window.innerWidth;
+    const height = canvasHeight || getPageHeight();
     const colors = readThemeColors();
     const levels = getWaveLevels(72);
     const phase = Date.now() * 0.0018;
 
     ctx.clearRect(0, 0, width, height);
 
-    const bg = ctx.createLinearGradient(0, 0, width, height);
+    const bg = ctx.createLinearGradient(0, 0, 0, height);
     bg.addColorStop(0, colors.bgStart);
-    bg.addColorStop(1, colors.bgEnd);
+    bg.addColorStop(0.55, colors.bgEnd);
+    bg.addColorStop(1, colors.bgStart);
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 
-    drawBars(width, height, levels, colors);
-
-    ctx.globalAlpha = 0.42;
-    drawWaveLine(width, height, 0.34, levels, colors.cyan, height * 0.09, phase);
-    drawWaveLine(width, height, 0.52, levels, colors.purple, height * 0.11, phase + 1.4);
-    drawWaveLine(width, height, 0.7, levels, colors.cyan, height * 0.08, phase + 2.6);
-    ctx.globalAlpha = 1;
+    drawAmbientGlows(width, height, colors, phase);
+    drawWaveBands(width, height, levels, colors, phase);
 
     animationId = window.requestAnimationFrame(renderFrame);
   }
@@ -218,6 +266,13 @@
   });
 
   window.addEventListener("resize", resizeCanvas);
+  window.addEventListener("load", resizeCanvas);
+
+  if (typeof ResizeObserver !== "undefined") {
+    const pageObserver = new ResizeObserver(() => resizeCanvas());
+    pageObserver.observe(document.body);
+    pageObserver.observe(document.documentElement);
+  }
 
   audioEl.loop = true;
   audioEl.muted = isMuted;

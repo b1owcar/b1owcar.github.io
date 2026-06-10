@@ -24,7 +24,9 @@
     <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
   <body class="fade-in">
-    <canvas id="ambient-wave-canvas" class="ambient-wave-canvas" aria-hidden="true"></canvas>
+    <div class="ambient-backdrop" aria-hidden="true">
+      <canvas id="ambient-wave-canvas" class="ambient-wave-canvas"></canvas>
+    </div>
     <audio id="ambient-audio" src="./ambient.mp3" loop preload="auto"></audio>
     <div class="ambient-controls glass-panel" id="ambient-controls">
       <button id="ambient-play" class="ambient-btn" type="button" aria-label="Pause music">⏸</button>
@@ -118,9 +120,16 @@
 
       <section id="studio" class="section">
         <div class="container">
-          <div class="glass-panel section-card">
-            <div class="section-head">
-            <h2 class="neon-outline" data-i18n="studio.title">b1owcar Studio</h2>
+          <div class="glass-panel section-card studio-layout">
+            <div class="studio-logo-wrap">
+              <img
+                src="./b1owcar.png"
+                alt="b1owcar Studio logo"
+                class="studio-logo"
+              />
+            </div>
+            <div class="studio-content">
+              <h2 class="neon-outline" data-i18n="studio.title">b1owcar Studio</h2>
               <div class="works-placeholder" data-i18n="studio.content"></div>
             </div>
           </div>

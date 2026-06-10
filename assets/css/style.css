@@ -135,6 +135,7 @@ html {
 }
 
 body {
+  position: relative;
   margin: 0;
   color: var(--text-primary);
   font-family: "Inter", sans-serif;
@@ -143,11 +144,19 @@ body {
   transition: color 260ms ease;
 }
 
-.ambient-wave-canvas {
-  position: fixed;
-  inset: 0;
+.ambient-backdrop {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
   z-index: 0;
   pointer-events: none;
+  overflow: hidden;
+}
+
+.ambient-wave-canvas {
+  display: block;
+  width: 100%;
 }
 
 .ambient-controls {
@@ -156,22 +165,28 @@ body {
   bottom: 1rem;
   z-index: 130;
   display: inline-flex;
-  gap: 0.45rem;
-  padding: 0.45rem;
-  border-radius: 14px;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.4rem;
+  border-radius: 16px;
+  box-shadow: var(--shadow-soft), 0 0 18px rgba(55, 242, 255, 0.16);
 }
 
 .ambient-btn {
   width: 40px;
   height: 40px;
   border: 1px solid rgba(55, 242, 255, 0.45);
-  border-radius: 10px;
+  border-radius: 12px;
   background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
   font-size: 1rem;
   line-height: 1;
   cursor: pointer;
-  transition: box-shadow var(--transition), background var(--transition), transform var(--transition);
+  transition: box-shadow var(--transition), background var(--transition), transform var(--transition), border-color var(--transition);
+}
+
+.ambient-btn + .ambient-btn {
+  margin-left: 0.05rem;
 }
 
 .ambient-btn:hover,
@@ -352,6 +367,36 @@ main,
   grid-template-columns: 220px 1fr;
   gap: 1.5rem;
   align-items: center;
+}
+
+.studio-layout {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 1.5rem;
+  align-items: start;
+}
+
+.studio-logo-wrap {
+  width: 168px;
+  height: 168px;
+  margin: 0 auto;
+  padding: 6px;
+  border-radius: 22px;
+  background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
+  box-shadow: 0 0 18px rgba(55, 242, 255, 0.45), 0 0 24px rgba(187, 102, 255, 0.35);
+}
+
+.studio-logo {
+  width: 100%;
+  height: 100%;
+  border-radius: 16px;
+  object-fit: cover;
+  display: block;
+  background: #0f1830;
+}
+
+.studio-content h2 {
+  margin-bottom: 1rem;
 }
 
 .avatar-wrapper {
@@ -746,9 +791,14 @@ textarea:focus {
     padding-top: 7.6rem;
   }
 
-  .about-layout {
+  .about-layout,
+  .studio-layout {
     grid-template-columns: 1fr;
     text-align: center;
+  }
+
+  .studio-logo-wrap {
+    margin-bottom: 0.2rem;
   }
 
   .tag-list {
